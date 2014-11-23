@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                font-family: monospace;
+            }
+            * {
+                -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
+                -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
+                outline: none !important;
+            }
+            .list {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .list li, .return {
+                padding: 20px 30px;
+                width: 100%;
+                background-color: #276edf;
+                border: 1px #317cde solid;
+                color: #fff;
+                font-size: 1.5em;
+                box-sizing: border-box;
+            }
+            .list li:active {
+                background-color: #3583e9;
+            }
+            .page .return {
+                /*background-color: #3583e9;*/
+                font-size: 1em;
+            }
+            .page {
+                position: absolute;
+                right: 0;
+                left: 0;
+            }
+            #kind {
+                z-index: 0;
+            }
+            #list {
+                display: none;
+                z-index: 1;
+            }
+            .clear {
+                clear: both;
+            }
+            #list .list li {
+                padding: 15px 30px;
+            }
+            #view {
+                color: #fff;
+                top: 0;
+                bottom: 0;
+                background-color: #276edf;
+                display: none;
+                z-index: 2;
+            }
+            #view .content {
+                position: absolute;
+                text-align: center;
+                font-size: 2em;
+                top: 40%;
+                left: 0;
+                right: 0;
+            }
+            #list .list li .name {
+                /*margin-bottom: 3px;*/
+            }
+            #list .list li .zh {
+                font-size: 0.8em;
+                float: left;
+                /*color: #d4d4d4;*/
+            }
+            #list .list li .ro {
+                font-size: 0.6em;
+                color: #d4d4d4;
+                float: right;
+                padding-top: 3px;
+            }
+            #list .list li .jp {
+                font-size: 0.5em;
+                color: #d4d4d4;
+                margin-bottom: 0px;
+                width: 100%;
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body ontouchstart="">
+        <ul id="kind" class="page list"></ul>
+        <div id="list" class="page">
+            <div class="return">< 返回</div>
+            <ul class="list"></ul>
+        </div>
+        <div id="view" class="page">
+            <span class="content"></span>
+        </div>
+    </body>
+    <script src="jquery.js"></script>
+    <script src="data.js"></script>
+    <script id="kind-tpl" type="text/x-handlebars-template">
+        {{#each this}}
+        <li data-id="{{@index}}">{{name}}</li>
+        {{/each}}
+    </script>
+    <script id="list-tpl" type="text/x-handlebars-template">
+        {{#each this}}
+        <li data-jp="{{jp}}">
+            <div class="name zh">{{zh}}</div>
+            <div class="name ro">{{ro}}</div>
+            <div class="clear"></div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        var cacheScroll = 0;
+        $(function() {
+            // render
+            var kindTpl = Handlebars.compile($('#kind-tpl').html());
+            var listTpl = Handlebars.compile($('#list-tpl').html());
+            $('#kind').append(kindTpl(data));
+            // bind
+            $('.page .return').on('tap', function(event) {
+                $(this).parents('.page').hide();
+                $('#kind').show();
+                return false;
+            });
+            $('#kind li').on('tap', function(event) {
+                var idx = Number($(this).data('id'));
+                var list = data[idx].list;
+                $('#kind').hide();
+                $('#list').show();
+                $('#list .list').html(listTpl(list));
+                return false;
+            });
+            $(document).on('tap', '#list .list li', function(event) {
+                var jp = $(this).data('jp');
+                $('#view .content').text(jp);
+                cacheScroll = $('body').scrollTop();
+                $('#list').hide();
+                $('#view').show();
+                return false;
+            });
+            $('#view').on('tap', function(event) {
+                $(this).hide();
+                $('#list').show();
+                $('body').scrollTop(cacheScroll);
+                return false;
+            });
+        });
+    </script>
+</html>
